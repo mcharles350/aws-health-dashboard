@@ -12,7 +12,7 @@ AWS::CloudFormation::Interface:
       default: SNS
     Parameters:
       - TopicName
-      - ReceipientEmailAddress
+      - RecipientEmailAddress
   - Label:
       default: Events
     Parameters:
@@ -22,7 +22,7 @@ AWS::CloudFormation::Interface:
   ParameterLabels:
     PolicyName:
       default: IAM policy name
-    ReceipientEmailAddress:
+    RecipientEmailAddress:
       default: SNS subscription email addres
     RoleName:
       default: IAM role name
@@ -97,3 +97,7 @@ Resources:
           Ref: RuleName
         RuleState:
           Ref: RuleState
+        TopicName:
+          Ref: [ SNSTemplate, Outputs.TopicName ]
+        HealthEventsTopic:
+          Ref: HealthEventsTopic

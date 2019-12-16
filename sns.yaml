@@ -39,7 +39,6 @@ Resources:
             AWS: 
               GetAtt:
                 - Ref: RoleName
-                - Arn               
           Action: "sns:Publish"
           Resource: "*"
       Topics:
@@ -58,6 +57,7 @@ Outputs:
     Description: SNS Topic Name
     Value:
       Ref: HealthEventsTopic
+      
   HealthEventsTopicPolicy:
     Description: SNS Topic Policy 
     Value: 

@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create a new CloudWatch Event rule and setup a new target to use existing SNS topic 
+
+Parameters:
+  RuleName:
+    Type: String
+    Description: Name for the event rule.
+
+  RoleName:
+    Type: String
+    Description: Name for the IAM Role to access Heath Dashboard alerts via CloudWatch Events
+
+  RuleState:
+    Type: String
+    Description: Turn on of off new event rule.
+    Default: ENABLED
+    AllowedValues:
+    - DISABLED
+    - ENABLED
+
+  TopicName:
+    Type: String
+    Description: Name of the SNS Topic.
+
+Resources:
+  HealthEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Event rule to access all events from the Personal Health Dashboard
+      EventPattern:
+        source:
+          - aws.health
+      Name:
+        Ref: RuleName
+      RoleArn:
+        Ref: RoleName
+      State: 
+        Ref: RuleState
+      Targets:
+        Arn:
+          GetAtt:
+          - Ref: HealthEventsTopic
+          - Arn
+        Id:
+          Ref: TopicName

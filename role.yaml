@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create new IAM role and IAM policy for CloudWatch Events
+
+Parameters:
+  RoleName:
+    Type: String
+    Description: Name for the IAM Role to access Heath Dashboard alerts via CloudWatch Events.
+    Default: HealthEventRole
+  
+  PolicyName:
+    Type: String
+    Description: Name for the IAM Policy to access Heath Dashboard alerts via CloudWatch Events.
+    Default: HealthEventPolicy  
+
+Resources:
+  HealthEventsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - 
+            Effect: "Allow"
+            Principal:
+              Service: 
+                - "events.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+      Path: "/"
+      RoleName: 
+        Ref: RoleName
+
+  HealthEventsPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName:
+        Ref: PolicyName
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - 
+            Effect: "Allow"
+            Action: "events:*"
+            Resource: "*"
+          -
+            Effect: "Allow"
+            Action: "iam:PassRole"
+            Resource:
+              Ref: HealthEventsRole
+        Roles:
+          - Ref: HealthEventsRole
+  DependsOn: HealthEventsRole

@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create a new SNS Topic and Subscription for CloudWatch Events.
+
+Parameters:
+  TopicName:
+    Type: String
+    Description: Name of the SNS Topic.
+    Default: notifySDAWSENG
+
+  RecipientEmailAddress:
+    Type: String
+    Description: Enter a valid email address for the subscription.
+
+  RoleName:
+    Type: String
+    Description: Name for the IAM Role to access Heath Dashboard alerts via CloudWatch Events.
+
+Resources:
+  HealthEventsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint:
+            Ref: RecipientEmailAddress
+          Protocol: email
+      TopicName:
+        Ref: TopicName
+
+  HealthEventsTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Id: HeatlhEventPolicy
+        Version: "2012-10-17"
+        Statement:
+        -
+          Effect: "Allow"
+          Principal:
+            AWS: 
+              GetAtt:
+                - Ref: RoleName
+                - Arn               
+          Action: "sns:Publish"
+          Resource: "*"
+      Topics:
+        - Ref: HealthEventsTopic
+
+#  HealthEventsSubs:
+#    Type: AWS::SNS::Subscription
+#    Properties:
+#      Endpoint: 
+#        Ref: RecipientEmailAddress
+#      Protocol: email
+#      TopicArn:
+#        Ref: HealthEventsTopic
+

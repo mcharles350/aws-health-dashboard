@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create new IAM role and IAM policy for CloudWatch Events
+
+Parameters:
+  RoleName:
+    Type: String
+    Description: Name for the IAM Role to access Heath Dashboard alerts via CloudWatch Events.
+    Default: HealthEventRole
+  
+  PolicyName:
+    Type: String
+    Description: Name for the IAM Policy to access Heath Dashboard alerts via CloudWatch Events.
+    Default: HealthEventPolicy
+
+  TopicName:
+    Type: String
+    Description: Name of the SNS Topic.
+    Default: notifySDAWSENG
+
+  RecipientEmailAddress:
+    Type: String
+    Description: Enter a valid email address for the subscription.
+
+  RuleName:
+    Type: String
+    Description: Name for the event rule.
+
+  RuleState:
+    Type: String
+    Description: Turn on of off new event rule.
+    Default: ENABLED
+    AllowedValues:
+    - DISABLED
+    - ENABLED        
+
+Resources:
+  RoleTemplate:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+      Parameters:
+        RoleName:
+          Ref: RoleName
+        PolicyName:
+          Ref: PolicyName
+
+  SNSTemplate:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+      Parameters:
+        TopicName:
+          Ref: TopicName
+        RecipientEmailAddress:
+          Ref: RecipientEmailAddress
+
+  EventsTemplate:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+      Parameters:
+        RuleName:
+          Ref: RuleName
+        RuleState:
+          Ref: RuleState

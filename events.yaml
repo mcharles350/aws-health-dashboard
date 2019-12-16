@@ -43,3 +43,9 @@ Resources:
           - Arn
         Id:
           Ref: TopicName
+
+Outputs:
+  HealthEventRule:
+  Decription: CloudWatch Event Rule
+  Value:
+    Ref: HealthEventRule

@@ -53,4 +53,14 @@ Resources:
 #      Protocol: email
 #      TopicArn:
 #        Ref: HealthEventsTopic
+Outputs:
+  HealthEventsTopic:
+    Description: SNS Topic Name
+    Value:
+      Ref: HealthEventsTopic
+  HealthEventsTopicPolicy:
+    Description: SNS Topic Policy 
+    Value: 
+      Ref: HealthEventsTopicPolicy
+
 

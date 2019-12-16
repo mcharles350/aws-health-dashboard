@@ -50,3 +50,14 @@ Resources:
         Roles:
           - Ref: HealthEventsRole
   DependsOn: HealthEventsRole
+
+Outputs:
+  HealthEventsRole:
+    Description: Name for the IAM Role
+    Value:
+      Ref: HealthEventsRole
+
+  HealthEventsPolicy:
+    Description:
+    Value:
+      Ref: HealthEventsPolicy

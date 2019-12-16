@@ -1,6 +1,38 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Create new IAM role and IAM policy for CloudWatch Events
 
+AWS::CloudFormation::Interface:
+  ParameterGroups:
+  - Label:
+      default: IAM
+    Parameters:
+      - RoleName
+      - PolicyName
+  - Label:
+      default: SNS
+    Parameters:
+      - TopicName
+      - ReceipientEmailAddress
+  - Label:
+      default: Events
+    Parameters:
+      - RuleName
+      - RuleState
+
+  ParameterLabels:
+    PolicyName:
+      default: IAM policy name
+    ReceipientEmailAddress:
+      default: SNS subscription email addres
+    RoleName:
+      default: IAM role name
+    RuleName:
+      default: CloudWatch Events rule
+    RuleState:
+      default: CloudeWatch Events state
+    TopicName:
+      default: SNS topic name
+      
 Parameters:
   RoleName:
     Type: String
@@ -37,7 +69,7 @@ Resources:
   RoleTemplate:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
+      TemplateURL: https://github.com/mcharles350/aws-health-dashboard/blob/master/role.yaml
       Parameters:
         RoleName:
           Ref: RoleName
@@ -47,17 +79,19 @@ Resources:
   SNSTemplate:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
+      TemplateURL: https://github.com/mcharles350/aws-health-dashboard/blob/master/sns.yaml
       Parameters:
         TopicName:
           Ref: TopicName
         RecipientEmailAddress:
           Ref: RecipientEmailAddress
+        RoleName:
+          GetAtt: [ RoleTemplate, Outputs.RoleName ]
 
   EventsTemplate:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
+      TemplateURL: https://github.com/mcharles350/aws-health-dashboard/blob/master/events.yaml
       Parameters:
         RuleName:
           Ref: RuleName

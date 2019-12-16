@@ -1,1 +1,1 @@
-<h1>AWS Health Dashboard</h1>
+<h1>AWS Health Dashboard Notifications</h1>

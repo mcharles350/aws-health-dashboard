@@ -1,14 +1,32 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Create a new CloudWatch Event rule and setup a new target to use existing SNS topic 
 
+Metadata:
+
+  Authors:
+    Description: Max Charles (mcharles1682@gmail.com)
+
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Events
+      Parameters:
+        - RuleName
+        - RuleState
+        - RuleId
+
+    ParameterLabels:
+      RuleName:
+        default: CloudWatch Events rule
+      RuleState:
+        default: CloudeWatch Events state 
+      RuleId:
+        default: CloudeWatch Events Id name         
+
 Parameters:
   RuleName:
     Type: String
     Description: Name for the event rule.
-
-  RoleName:
-    Type: String
-    Description: Name for the IAM Role to access Heath Dashboard alerts via CloudWatch Events
 
   RuleState:
     Type: String
@@ -18,10 +36,11 @@ Parameters:
     - DISABLED
     - ENABLED
 
-  TopicName:
+  RuleId:
     Type: String
-    Description: Name of the SNS Topic.
-
+    Description: ID name for the target
+    Default: HealhtEventTopic
+    
 Resources:
   HealthEventRule:
     Type: AWS::Events::Rule
@@ -33,19 +52,19 @@ Resources:
       Name:
         Ref: RuleName
       RoleArn:
-        Ref: RoleName
+        Fn::ImportValue: !Sub HealthRole-RoleArn
       State: 
         Ref: RuleState
       Targets:
+      - 
         Arn:
-          GetAtt:
-          - Ref: HealthEventsTopic
-          - Arn
+          Fn::ImportValue: !Sub HealthSNS-TopicArn
         Id:
-          Ref: TopicName
+          Ref: RuleId
 
 Outputs:
-  HealthEventRule:
-  Decription: CloudWatch Event Rule
-  Value:
-    Ref: HealthEventRule
+  HealthEventRuleArn:
+    Description: CloudWatch Events Rule Arn
+    Value: !GetAtt HealthEventRule.Arn 
+    Export:
+      Name: HealthEvent-Arn

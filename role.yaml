@@ -1,6 +1,25 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Create new IAM role and IAM policy for CloudWatch Events
 
+Metadata:
+
+  Authors:
+    Description: Max Charles (mcharles1682@gmail.com)
+
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: IAM
+      Parameters:
+        - RoleName
+        - PolicyName
+
+    ParameterLabels:
+      PolicyName:
+        default: IAM policy name
+      RoleName:
+        default: IAM role name
+      
 Parameters:
   RoleName:
     Type: String
@@ -19,19 +38,18 @@ Resources:
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - 
-            Effect: "Allow"
+          - Effect: "Allow"
             Principal:
               Service: 
                 - "events.amazonaws.com"
-              Action:
-                - "sts:AssumeRole"
+            Action: 
+              - "sts:AssumeRole"
       Path: "/"
       RoleName: 
         Ref: RoleName
 
   HealthEventsPolicy:
-    Type: "AWS::IAM::Policy"
+    Type: AWS::IAM::Policy
     Properties:
       PolicyName:
         Ref: PolicyName
@@ -45,19 +63,20 @@ Resources:
           -
             Effect: "Allow"
             Action: "iam:PassRole"
-            Resource:
-              Ref: HealthEventsRole
-        Roles:
-          - Ref: HealthEventsRole
-  DependsOn: HealthEventsRole
+            Resource: !GetAtt HealthEventsRole.Arn
+      Roles:
+        - Ref: HealthEventsRole
+    DependsOn: HealthEventsRole
 
 Outputs:
-  HealthEventsRole:
-    Description: Name for the IAM Role
-    Value:
-      Ref: HealthEventsRole
+  HealthEventsRoleId:
+    Description: IAM Role Id
+    Value: !GetAtt HealthEventsRole.RoleId
+    Export:
+        Name: HealthRole-RoleId
 
-  HealthEventsPolicy:
-    Description:
-    Value:
-      Ref: HealthEventsPolicy
+  HealthEventsRoleArn:
+    Description: IAM Role Arn
+    Value: !GetAtt HealthEventsRole.Arn 
+    Export:
+        Name: HealthRole-RoleArn

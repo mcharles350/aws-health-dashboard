@@ -1,6 +1,25 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Create a new SNS Topic and Subscription for CloudWatch Events.
 
+Metadata:
+
+  Authors:
+    Description: Max Charles (mcharles1682@gmail.com)
+
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: SNS
+      Parameters:
+        - TopicName
+        - RecipientEmailAddress
+
+    ParameterLabels:
+      RecipientEmailAddress:
+        default: SNS subscription email addres
+      TopicName:
+        default: SNS topic name
+       
 Parameters:
   TopicName:
     Type: String
@@ -10,10 +29,6 @@ Parameters:
   RecipientEmailAddress:
     Type: String
     Description: Enter a valid email address for the subscription.
-
-  RoleName:
-    Type: String
-    Description: Name for the IAM Role to access Heath Dashboard alerts via CloudWatch Events.
 
 Resources:
   HealthEventsTopic:
@@ -35,32 +50,26 @@ Resources:
         Statement:
         -
           Effect: "Allow"
-          Principal:
-            AWS: 
-              GetAtt:
-                - Ref: RoleName
+          Principal: 
+            AWS:
+                Fn::ImportValue: !Sub HealthRole-RoleArn              
           Action: "sns:Publish"
           Resource: "*"
       Topics:
         - Ref: HealthEventsTopic
+    DependsOn: HealthEventsTopic
 
-#  HealthEventsSubs:
-#    Type: AWS::SNS::Subscription
-#    Properties:
-#      Endpoint: 
-#        Ref: RecipientEmailAddress
-#      Protocol: email
-#      TopicArn:
-#        Ref: HealthEventsTopic
 Outputs:
-  HealthEventsTopic:
+  HealthEventsTopicArn:
+    Description: SNS Topic Arn
+    Value: !Ref HealthEventsTopic
+    Export:
+        Name: HealthSNS-TopicArn
+
+  HealthEventsTopicName:
     Description: SNS Topic Name
-    Value:
-      Ref: HealthEventsTopic
-      
-  HealthEventsTopicPolicy:
-    Description: SNS Topic Policy 
-    Value: 
-      Ref: HealthEventsTopicPolicy
+    Value: !GetAtt HealthEventsTopic.TopicName
+    Export:
+        Name: HealthSNS-TopicName       
 
 

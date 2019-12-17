@@ -1,37 +1,45 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Create new IAM role and IAM policy for CloudWatch Events
 
-AWS::CloudFormation::Interface:
-  ParameterGroups:
-  - Label:
-      default: IAM
-    Parameters:
-      - RoleName
-      - PolicyName
-  - Label:
-      default: SNS
-    Parameters:
-      - TopicName
-      - RecipientEmailAddress
-  - Label:
-      default: Events
-    Parameters:
-      - RuleName
-      - RuleState
+Metadata:
 
-  ParameterLabels:
-    PolicyName:
-      default: IAM policy name
-    RecipientEmailAddress:
-      default: SNS subscription email addres
-    RoleName:
-      default: IAM role name
-    RuleName:
-      default: CloudWatch Events rule
-    RuleState:
-      default: CloudeWatch Events state
-    TopicName:
-      default: SNS topic name
+  Authors:
+    Description: Max Charles (mcharles1682@gmail.com)
+
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: IAM
+      Parameters:
+        - RoleName
+        - PolicyName
+    - Label:
+        default: SNS
+      Parameters:
+        - TopicName
+        - RecipientEmailAddress
+    - Label:
+        default: Events
+      Parameters:
+        - RuleName
+        - RuleState
+        - RuleId
+
+    ParameterLabels:
+      PolicyName:
+        default: IAM policy name
+      RecipientEmailAddress:
+        default: SNS subscription email addres
+      RoleName:
+        default: IAM role name
+      RuleName:
+        default: CloudWatch Events rule
+      RuleState:
+        default: CloudeWatch Events state
+      TopicName:
+        default: SNS topic name
+      RuleId:
+        default: CloudWatch Event Id name
       
 Parameters:
   RoleName:
@@ -52,6 +60,7 @@ Parameters:
   RecipientEmailAddress:
     Type: String
     Description: Enter a valid email address for the subscription.
+    ConstraintDescription: i.e. email@example.com
 
   RuleName:
     Type: String
@@ -63,7 +72,12 @@ Parameters:
     Default: ENABLED
     AllowedValues:
     - DISABLED
-    - ENABLED        
+    - ENABLED  
+
+  RuleId:
+    Type: String
+    Description: ID name for the target
+    Default: HealhtEventRuled   
 
 Resources:
   RoleTemplate:
@@ -76,7 +90,7 @@ Resources:
         PolicyName:
           Ref: PolicyName
 
-  SNSTemplate:
+  SnsTemplate:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://github.com/mcharles350/aws-health-dashboard/blob/master/sns.yaml
@@ -85,8 +99,7 @@ Resources:
           Ref: TopicName
         RecipientEmailAddress:
           Ref: RecipientEmailAddress
-        RoleName:
-          GetAtt: [ RoleTemplate, Outputs.RoleName ]
+    DependsOn: RoleTemplate
 
   EventsTemplate:
     Type: AWS::CloudFormation::Stack
@@ -97,7 +110,6 @@ Resources:
           Ref: RuleName
         RuleState:
           Ref: RuleState
-        TopicName:
-          Ref: [ SNSTemplate, Outputs.TopicName ]
-        HealthEventsTopic:
-          Ref: HealthEventsTopic
+        RuleId:
+          Ref: RuleId
+    DependsOn: SnsTemplate
